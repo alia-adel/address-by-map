@@ -30,9 +30,10 @@ function clearForm() {
     $('#sector').val('');
     $('#city').val('');
     $('#emirate').val('');
+    document.getElementById('needArabic').checked = false;
 }
 
-function loadAddress(data) {
+function loadAddress(data) {    
     $('#name').val(data.address.PlaceName);
     $('#address').val(data.address.LongLabel);
     $('#street').val(data.address.Address);
@@ -118,10 +119,12 @@ require([
 $(function () {
     $('#needArabic').change((event) =>{
         if(event.currentTarget.checked) {
-            self.lang = 'AR';
-            if(currentPoint) {
-                self.reverseCodeAddress(currentPoint[0], currentPoint[1]);
-            }
+            self.lang = 'AR';            
+        } else {
+            self.lang = 'EN';
+        }
+        if(currentPoint) {
+            self.reverseCodeAddress(currentPoint[0], currentPoint[1]);
         }
     });
 });
