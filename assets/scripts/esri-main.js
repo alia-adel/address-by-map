@@ -63,7 +63,7 @@ function searchForAddress(options) {
     if (options) {
         // Get address
         options= 'SingleLine=' + options;
-        var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?outFields=*&langCode=' + this.lang + '&forStorage=false&f=pjson&' + encodeURI(options);
+        var url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?outFields=*&langCode=' + this.lang + '&forStorage=false&f=pjson&' + encodeURI(options);
         return fetch(url).then((response) => {
             return response.json();
         }).then((response) => {
