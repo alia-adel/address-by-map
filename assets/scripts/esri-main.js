@@ -83,7 +83,8 @@ function searchForAddress(options) {
                 };
                 loadAddress(data);
                 self.view.goTo({
-                    target: [topSearch.Y, topSearch.X]
+                    target: [topSearch.X, topSearch.Y],
+                    zoom: 20
                 });
             }
             
