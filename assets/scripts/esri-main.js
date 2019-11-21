@@ -45,7 +45,7 @@ function loadAddress(data) {
 
 function reverseCodeAddress(long, lat){
     // Get address
-    var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&langCode=' + this.lang + '&featureTypes=&location=' + long + ',' + lat;
+    var url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&langCode=' + this.lang + '&featureTypes=&location=' + long + ',' + lat;
     return fetch(url).then((response) => {
         return response.json();
     }).then((response) => {
