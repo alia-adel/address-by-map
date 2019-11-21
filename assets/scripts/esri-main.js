@@ -81,10 +81,11 @@ function searchForAddress(options) {
                     City: topSearch.City,
                     location: topSearch.X + ',' + topSearch.Y
                 };
+                self.currentPoint = [topSearch.X, topSearch.Y];
                 loadAddress(data);
                 self.view.goTo({
                     target: [topSearch.X, topSearch.Y],
-                    zoom: 20
+                    zoom: 18
                 });
             }
             
