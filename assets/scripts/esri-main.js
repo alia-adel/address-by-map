@@ -83,7 +83,7 @@ function searchForAddress(options) {
                 };
                 loadAddress(data);
                 self.view.goTo({
-                    target: [topSearch.X,topSearch.Y]
+                    target: [topSearch.Y, topSearch.X]
                 });
             }
             
@@ -166,7 +166,7 @@ $(function () {
             self.reverseCodeAddress(currentPoint[0], currentPoint[1]);
         }
     });
-    $('#address-form button').click(() => {
+    $('#address-form button.search').click(() => {
         var form = document.getElementById('address-form');
         var searchQueryParam = '';
         var valueAdded = false;
