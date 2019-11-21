@@ -5,6 +5,7 @@
 //     == Change point symbol to picture: https://developers.arcgis.com/javascript/latest/api-reference/esri-symbols-PictureMarkerSymbol.html
 //     == Display popup: https://developers.arcgis.com/javascript/latest/guide/configure-pop-ups/
 //     == Home Button: https://developers.arcgis.com/javascript/latest/sample-code/widgets-home/index.html (but the widget was used on MapView instead of ViewScene)
+//     == Search for Address by name: https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm
 /*
     Known Limitations:   
     ==================
@@ -33,7 +34,7 @@ function clearForm() {
     document.getElementById('needArabic').checked = false;
 }
 
-function loadAddress(data) {    
+function loadAddress(data) {
     $('#name').val(data.address.PlaceName);
     $('#address').val(data.address.LongLabel);
     $('#street').val(data.address.Address);
@@ -43,7 +44,7 @@ function loadAddress(data) {
     console.log(data);
 }
 
-function reverseCodeAddress(long, lat){
+function reverseCodeAddress(long, lat) {
     // Get address
     var url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&langCode=' + this.lang + '&featureTypes=&location=' + long + ',' + lat;
     return fetch(url).then((response) => {
@@ -55,10 +56,25 @@ function reverseCodeAddress(long, lat){
     });
 }
 
+
+function searchForAddress(options) {
+    if (options) {
+        // Get address
+        var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?outFields=*&forStorage=false&f=pjson&' + encodeURI(options);
+        return fetch(url).then((response) => {
+            return response.json();
+        }).then((response) => {
+            console.log(response);
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
+}
+
 require([
-    "esri/Map" /* Create a 2D map */ ,
+    "esri/Map" /* Create a 2D map */,
     "esri/views/MapView",
-    "esri/Graphic" /* For points */ ,
+    "esri/Graphic" /* For points */,
     "esri/widgets/Home"
 ], function (Map, MapView, Graphic, Home) {
 
@@ -84,7 +100,7 @@ require([
         // Search for graphics at the clicked location. View events can be used
         // as screen locations as they expose an x,y coordinate that conforms
         // to the ScreenPoint definition.
-        console.log(`Long: ${event.mapPoint.longitude}, Lat: ${event.mapPoint.latitude}`);        
+        console.log(`Long: ${event.mapPoint.longitude}, Lat: ${event.mapPoint.latitude}`);
         // Update text field        
         $('#coordinates').val(`${event.mapPoint.latitude},${event.mapPoint.longitude}`);
         var point = {
@@ -117,15 +133,49 @@ require([
     });
 });
 $(function () {
-    $('#needArabic').change((event) =>{
-        if(event.currentTarget.checked) {
-            self.lang = 'AR';            
+    $('#needArabic').change((event) => {
+        if (event.currentTarget.checked) {
+            self.lang = 'AR';
         } else {
             self.lang = 'EN';
         }
-        if(currentPoint) {
+        if (currentPoint) {
             self.reverseCodeAddress(currentPoint[0], currentPoint[1]);
         }
+    });
+    $('#address-form button').click(() => {
+        var form = document.getElementById('address-form');
+        var searchQueryParam = '';
+        var valueAdded = false;
+        for (var input of form) {
+            if (input.type === 'text' && input.value && input.value.trim() !== '') {
+                valueAdded = false;
+                switch (input.id) {
+                    case ('name'):
+                        searchQueryParam += 'PlaceName=' + input.value;
+                        valueAdded = true;
+                        break;
+                    case ('sector'):
+                        searchQueryParam += 'City=' + input.value;
+                        valueAdded = true;
+                        break;
+                    case ('street'):
+                        searchQueryParam += 'StreetAddress=' + input.value;
+                        valueAdded = true;
+                        break;
+                    case ('emirate'):
+                        searchQueryParam += 'Region=' + input.value;
+                        valueAdded = true;
+                        break;
+                }
+                searchQueryParam += (valueAdded) ? '&' : '';
+            }
+        }
+        if (searchQueryParam && searchQueryParam.length > 0) {
+            searchQueryParam = searchQueryParam.substring(0, searchQueryParam.length - 1);
+            self.searchForAddress(searchQueryParam);
+        }
+        console.log(searchQueryParam);
     });
 });
 
