@@ -1,0 +1,25 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    -webkit-transition: all 1s;
+    transition: all 1s;
+}
+
+.app-form {
+    background: #f2f2f2;
+    border-radius: 10px;
+}
+
+#map {
+    height: 600px;
+    max-width: 100%;
+}
+
+.esri-view-surface {
+    border-radius: 10px;
+}
