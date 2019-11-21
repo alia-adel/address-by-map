@@ -83,6 +83,7 @@ function searchForAddress(options) {
                 };
                 self.currentPoint = [topSearch.X, topSearch.Y];
                 loadAddress(data);
+                self.addPoint(topSearch.X, topSearch.Y);
                 self.view.goTo({
                     target: [topSearch.X, topSearch.Y],
                     zoom: 18
@@ -96,12 +97,38 @@ function searchForAddress(options) {
     }
 }
 
+function addPoint(long, lat){
+    require([
+        "esri/Graphic" /* For points */,
+    ], function (Graphic) {
+        var point = {
+            type: "point",
+            longitude: long,
+            latitude: lat
+        };
+        pictureMarkerSymbol = {
+            type: "picture-marker",
+            url: "https://alia-adel.github.io/ad-transport-map/assets/images/marker.png",
+            width: "25px",
+            height: "26px",
+            declaredClass: "map-point"
+        };
+        pointGraphic = new Graphic({
+            geometry: point,
+            symbol: pictureMarkerSymbol
+        });
+        // clear all exiting points
+        view.graphics.items = [];
+        // add new point to map
+        view.graphics.add(pointGraphic);
+    });
+}
+
 require([
     "esri/Map" /* Create a 2D map */,
     "esri/views/MapView",
-    "esri/Graphic" /* For points */,
     "esri/widgets/Home"
-], function (Map, MapView, Graphic, Home) {
+], function (Map, MapView, Home) {
 
     map = new Map({
         basemap: "streets-navigation-vector"
@@ -128,30 +155,7 @@ require([
         console.log(`Long: ${event.mapPoint.longitude}, Lat: ${event.mapPoint.latitude}`);
         // Update text field        
         $('#coordinates').val(`${event.mapPoint.latitude},${event.mapPoint.longitude}`);
-        var point = {
-            type: "point",
-            longitude: event.mapPoint.longitude,
-            latitude: event.mapPoint.latitude
-        };
-        pictureMarkerSymbol = {
-            type: "picture-marker",
-            url: "https://alia-adel.github.io/ad-transport-map/assets/images/marker.png",
-            width: "25px",
-            height: "26px",
-            declaredClass: "map-point"
-        };
-
-        pointGraphic = new Graphic({
-            geometry: point,
-            symbol: pictureMarkerSymbol,
-            popupTemplate: {
-                title: stop.Name
-            }
-        });
-        // clear all exiting points
-        view.graphics.items = [];
-        // add new point to map
-        view.graphics.add(pointGraphic);
+        self.addPoint(event.mapPoint.longitude, event.mapPoint.latitude);
         currentPoint = null;
         self.reverseCodeAddress(event.mapPoint.longitude, event.mapPoint.latitude);
         currentPoint = [event.mapPoint.longitude, event.mapPoint.latitude];
