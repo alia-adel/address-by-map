@@ -35,12 +35,15 @@ function clearForm() {
 }
 
 function loadAddress(data) {
-    $('#name').val(data.address.PlaceName);
-    $('#address').val(data.address.LongLabel);
-    $('#street').val(data.address.Address);
-    $('#sector').val(data.address.City);
-    $('#city').val(data.address.Subregion);
-    $('#emirate').val(data.address.Region);
+    if(data.location){
+        $('#coordinates').val(data.location);
+    }    
+    $('#name').val(data.PlaceName);
+    $('#address').val(data.LongLabel);
+    $('#street').val(data.Address);
+    $('#sector').val(data.City);
+    $('#city').val(data.Subregion);
+    $('#emirate').val(data.Region);
     console.log(data);
 }
 
@@ -50,20 +53,40 @@ function reverseCodeAddress(long, lat) {
     return fetch(url).then((response) => {
         return response.json();
     }).then((response) => {
-        loadAddress(response);
+        loadAddress(response.address);
     }).catch((error) => {
         console.error(error);
     });
 }
 
-
 function searchForAddress(options) {
     if (options) {
         // Get address
-        var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?outFields=*&forStorage=false&f=pjson&' + encodeURI(options);
+        options= 'SingleLine=' + options;
+        var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?outFields=*&langCode=' + this.lang + '&forStorage=false&f=pjson&' + encodeURI(options);
         return fetch(url).then((response) => {
             return response.json();
         }).then((response) => {
+            if(response && response.candidates && response.candidates.length > 0) {
+                var topSearch = response.candidates.sort((res1, res2) => {
+                    return res1.score > res2.score;
+                })[0];
+                topSearch = topSearch.attributes;
+                var data = {
+                    PlaceName: topSearch.PlaceName,
+                    LongLabel: topSearch.LongLabel,
+                    Address: topSearch.StAddr,
+                    Region: topSearch.Region,
+                    Subregion: topSearch.Subregion,
+                    City: topSearch.Zone,
+                    location: topSearch.X + ',' + topSearch.Y
+                };
+                loadAddress(data);
+                self.view.goTo({
+                    target: [topSearch.X,topSearch.Y]
+                });
+            }
+            
             console.log(response);
         }).catch((error) => {
             console.error(error);
@@ -152,23 +175,23 @@ $(function () {
                 valueAdded = false;
                 switch (input.id) {
                     case ('name'):
-                        searchQueryParam += 'PlaceName=' + input.value;
+                        searchQueryParam += input.value;
                         valueAdded = true;
                         break;
                     case ('sector'):
-                        searchQueryParam += 'City=' + input.value;
+                        searchQueryParam += input.value;
                         valueAdded = true;
                         break;
                     case ('street'):
-                        searchQueryParam += 'StreetAddress=' + input.value;
+                        searchQueryParam += input.value;
                         valueAdded = true;
                         break;
                     case ('emirate'):
-                        searchQueryParam += 'Region=' + input.value;
+                        searchQueryParam += input.value;
                         valueAdded = true;
                         break;
                 }
-                searchQueryParam += (valueAdded) ? '&' : '';
+                searchQueryParam += (valueAdded) ? ',' : '';
             }
         }
         if (searchQueryParam && searchQueryParam.length > 0) {
