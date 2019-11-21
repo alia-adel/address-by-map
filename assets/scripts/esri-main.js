@@ -15,7 +15,9 @@
     The height and width of the symbol is restricted to no more than 200px.
 */
 
-var map, view;
+var map, view, lang = 'EN';
+var self = this;
+var currentPoint;
 // Abu Dhabi Coordinates
 var mapCenterCoordinates = [54.366669, 24.466667];
 this.clearForm();
@@ -38,6 +40,18 @@ function loadAddress(data) {
     $('#city').val(data.address.Subregion);
     $('#emirate').val(data.address.Region);
     console.log(data);
+}
+
+function reverseCodeAddress(long, lat){
+    // Get address
+    var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&langCode=' + this.lang + '&featureTypes=&location=' + long + ',' + lat;
+    return fetch(url).then((response) => {
+        return response.json();
+    }).then((response) => {
+        loadAddress(response);
+    }).catch((error) => {
+        console.error(error);
+    });
 }
 
 require([
@@ -69,7 +83,7 @@ require([
         // Search for graphics at the clicked location. View events can be used
         // as screen locations as they expose an x,y coordinate that conforms
         // to the ScreenPoint definition.
-        console.log(`Long: ${event.mapPoint.longitude}, Lat: ${event.mapPoint.latitude}`);
+        console.log(`Long: ${event.mapPoint.longitude}, Lat: ${event.mapPoint.latitude}`);        
         // Update text field        
         $('#coordinates').val(`${event.mapPoint.latitude},${event.mapPoint.longitude}`);
         var point = {
@@ -96,15 +110,19 @@ require([
         view.graphics.items = [];
         // add new point to map
         view.graphics.add(pointGraphic);
-        // Get address
-        var url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&featureTypes=&location=' + event.mapPoint.longitude + ',' + event.mapPoint.latitude;
-        return fetch(url).then((response) => {
-            return response.json();
-        }).then((response) => {
-            loadAddress(response);
-        }).catch((error) => {
-            console.error(error);
-        });
-
+        currentPoint = null;
+        self.reverseCodeAddress(event.mapPoint.longitude, event.mapPoint.latitude);
+        currentPoint = [event.mapPoint.longitude, event.mapPoint.latitude];
     });
 });
+$(function () {
+    $('#needArabic').change((event) =>{
+        if(event.currentTarget.checked) {
+            self.lang = 'AR';
+            if(currentPoint) {
+                self.reverseCodeAddress(currentPoint[0], currentPoint[1]);
+            }
+        }
+    });
+});
+
