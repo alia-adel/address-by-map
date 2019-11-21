@@ -78,7 +78,7 @@ function searchForAddress(options) {
                     Address: topSearch.StAddr,
                     Region: topSearch.Region,
                     Subregion: topSearch.Subregion,
-                    City: topSearch.Zone,
+                    City: topSearch.City,
                     location: topSearch.X + ',' + topSearch.Y
                 };
                 loadAddress(data);
