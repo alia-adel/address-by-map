@@ -24,3 +24,11 @@ body {
 .esri-view-surface {
     border-radius: 10px;
 }
+
+.esri-ui-top-left.esri-ui-corner {
+    padding-top: 40px;
+}
+
+.esri-ui-top-right.esri-ui-corner, .esri-component.esri-search.esri-widget {
+    width: 100%;
+}

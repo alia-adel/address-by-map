@@ -6,6 +6,7 @@
 //     == Display popup: https://developers.arcgis.com/javascript/latest/guide/configure-pop-ups/
 //     == Home Button: https://developers.arcgis.com/javascript/latest/sample-code/widgets-home/index.html (but the widget was used on MapView instead of ViewScene)
 //     == Search for Address by name: https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm
+//     == Search widget: https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Search.html
 /*
     Known Limitations:   
     ==================
@@ -35,9 +36,9 @@ function clearForm() {
 }
 
 function loadAddress(data) {
-    if(data.location){
+    if (data.location) {
         $('#coordinates').val(data.location);
-    }    
+    }
     $('#name').val(data.PlaceName);
     $('#address').val(data.LongLabel);
     $('#street').val(data.Address);
@@ -62,12 +63,12 @@ function reverseCodeAddress(long, lat) {
 function searchForAddress(options) {
     if (options) {
         // Get address
-        options= 'SingleLine=' + options;
+        options = 'SingleLine=' + options;
         var url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?outFields=*&location=' + self.mapCenterCoordinates + '&langCode=' + this.lang + '&forStorage=false&f=pjson&' + encodeURI(options);
         return fetch(url).then((response) => {
             return response.json();
         }).then((response) => {
-            if(response && response.candidates && response.candidates.length > 0) {
+            if (response && response.candidates && response.candidates.length > 0) {
                 var topSearch = response.candidates.sort((res1, res2) => {
                     return res1.score > res2.score;
                 })[0];
@@ -89,7 +90,7 @@ function searchForAddress(options) {
                     zoom: 18
                 });
             }
-            
+
             console.log(response);
         }).catch((error) => {
             console.error(error);
@@ -97,9 +98,9 @@ function searchForAddress(options) {
     }
 }
 
-function addPoint(long, lat){
+function addPoint(long, lat) {
     require([
-        "esri/Graphic" /* For points */,
+        "esri/Graphic" /* For points */ ,
     ], function (Graphic) {
         var point = {
             type: "point",
@@ -125,10 +126,11 @@ function addPoint(long, lat){
 }
 
 require([
-    "esri/Map" /* Create a 2D map */,
+    "esri/Map" /* Create a 2D map */ ,
     "esri/views/MapView",
-    "esri/widgets/Home"
-], function (Map, MapView, Home) {
+    "esri/widgets/Home",
+    "esri/widgets/Search"
+], function (Map, MapView, Home, Search) {
 
     map = new Map({
         basemap: "streets-navigation-vector"
@@ -144,6 +146,20 @@ require([
     var homeBtn = new Home({
         view: view
     });
+
+    var searchWidget = new Search({
+        view: view,
+        label : "Hi there",
+        locationEnabled : false,
+        resultGraphicEnabled: true,
+        popupEnabled: false
+    });
+
+    searchWidget.on("select-result", function(event){
+        console.log("The selected search result: ", event);
+    });
+
+    view.ui.add(searchWidget, "top-right");
 
     // Add the home button to the top left corner of the view
     view.ui.add(homeBtn, "top-left");
@@ -207,4 +223,3 @@ $(function () {
         console.log(searchQueryParam);
     });
 });
-
