@@ -158,10 +158,12 @@ require([
     searchWidget.on("select-result", function(event){
         console.log("The selected search result: ", event);
         try {
+            window.setTimeout(function() {
                 self.addPoint(event.results.feature.geometry.longitude, event.results.feature.geometry.latitude);
                 currentPoint = null;
                 self.reverseCodeAddress(event.results.feature.geometry.longitude, event.results.feature.geometry.latitude);
                 currentPoint = [event.mapPoint.longitude, event.mapPoint.latitude];
+            } , 100);
         } catch(error) {
             console.error(error);
         }
