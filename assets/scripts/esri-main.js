@@ -157,6 +157,14 @@ require([
 
     searchWidget.on("select-result", function(event){
         console.log("The selected search result: ", event);
+        try {
+                self.addPoint(event.results.feature.geometry.longitude, event.results.feature.geometry.latitude);
+                currentPoint = null;
+                self.reverseCodeAddress(event.results.feature.geometry.longitude, event.results.feature.geometry.latitude);
+                currentPoint = [event.mapPoint.longitude, event.mapPoint.latitude];
+        } catch(error) {
+            console.error(error);
+        }
     });
 
     view.ui.add(searchWidget, "top-right");
