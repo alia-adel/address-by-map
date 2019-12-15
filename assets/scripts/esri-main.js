@@ -159,10 +159,10 @@ require([
         console.log("The selected search result: ", event);
         try {
             window.setTimeout(function() {
-                self.addPoint(event.results.feature.geometry.longitude, event.results.feature.geometry.latitude);
+                self.addPoint(event.result.feature.geometry.longitude, event.result.feature.geometry.latitude);
                 currentPoint = null;
-                self.reverseCodeAddress(event.results.feature.geometry.longitude, event.results.feature.geometry.latitude);
-                currentPoint = [event.mapPoint.longitude, event.mapPoint.latitude];
+                self.reverseCodeAddress(event.result.feature.geometry.longitude, event.result.feature.geometry.latitude);
+                currentPoint = [event.result.feature.geometry.longitude, event.result.feature.geometry.latitude];
             } , 100);
         } catch(error) {
             console.error(error);
